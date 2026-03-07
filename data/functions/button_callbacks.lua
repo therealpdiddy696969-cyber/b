@@ -472,7 +472,8 @@ end
 ---@param e {}
 --**e** Is the UIE cursor that called this function
 G.FUNCS.flash = function(e)
-  if G.CONTROLLER.text_input_hook then 
+  local hooked = G.CONTROLLER.text_input_hook
+  if hooked and e.parent == hooked then 
     if (math.floor(G.TIMERS.REAL*2))%2 == 1 then
         e.config.colour[4] = 0
     else
@@ -1665,6 +1666,8 @@ G.FUNCS.setup_run = function(e)
 end
 
 G.FUNCS.save_settings = function() G:save_settings() end
+
+G.FUNCS.toggle_speed = function() if not G.SETTINGS.enable_speed then G.SETTINGS.speed = 1; G.SETTINGS.speed = '1' else G.SETTINGS.speed = tostring(G.SETTINGS.speed) end G:save_settings() end
 
 G.FUNCS.toggle_handsize = function() if not G.SETTINGS.enable_handsize then G.SETTINGS.handsize = 8; G.SETTINGS.handsize = '8' else G.SETTINGS.handsize = tostring(G.SETTINGS.handsize) end G:save_settings() end
 
