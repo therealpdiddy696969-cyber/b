@@ -2218,25 +2218,31 @@ function create_text_input(args)
   args.all_caps = args.all_caps or false
   args.prompt_text = args.prompt_text or localize('k_enter_text')
   args.current_prompt_text = ''
+  args.numbers_only = args.numbers_only or false
+  args.id_prefix = args.id_prefix or ''
+  args.draw_layer = args.draw_layer or 1
 
-  local text = {ref_table = args.ref_table, ref_value = args.ref_value, letters = {}, current_position = string.len(args.ref_table[args.ref_value])}
+  local initial_val = tostring(args.ref_table[args.ref_value] or '')
+  local text = {ref_table = args.ref_table, ref_value = args.ref_value, letters = {}, current_position = string.len(initial_val)}
   local ui_letters = {}
   for i = 1, args.max_length do
-    text.letters[i] = (args.ref_table[args.ref_value] and (string.sub(args.ref_table[args.ref_value], i, i) or '')) or ''
-    ui_letters[i] = {n=G.UIT.T, config={ref_table = text.letters, ref_value = i, scale = args.text_scale, colour = G.C.UI.TEXT_LIGHT, id = 'letter_'..i}}
+    text.letters[i] = string.sub(initial_val, i, i) or ''
+    ui_letters[i] = {n=G.UIT.T, config={ref_table = text.letters, ref_value = i, scale = args.text_scale, colour = G.C.UI.TEXT_LIGHT, id = args.id_prefix .. 'letter_'..i}}
   end
   args.text = text
 
+  args.callback = args.callback
+
   local position_text_colour = lighten(copy_table(G.C.BLUE), 0.4)
 
-  ui_letters[#ui_letters+1] = {n=G.UIT.T, config={ref_table = args, ref_value = 'current_prompt_text', scale = args.text_scale, colour = lighten(copy_table(args.colour), 0.4), id = 'prompt'}}
-  ui_letters[#ui_letters+1] = {n=G.UIT.B, config={r = 0.03,w=0.1, h=0.4, colour = position_text_colour, id = 'position', func = 'flash'}}
+  ui_letters[#ui_letters+1] = {n=G.UIT.T, config={ref_table = args, ref_value = 'current_prompt_text', scale = args.text_scale, colour = lighten(copy_table(args.colour), 0.4), id = args.id_prefix .. 'prompt'}}
+  ui_letters[#ui_letters+1] = {n=G.UIT.B, config={r = 0.03,w=0.1, h=0.4, colour = position_text_colour, id = args.id_prefix .. 'position', func = 'flash'}}
 
   local t = 
-       {n=G.UIT.C, config={align = "cm", draw_layer = 1, colour = G.C.CLEAR}, nodes = {
-          {n=G.UIT.C, config={id = 'text_input', align = "cm", padding = 0.05, r = 0.1, draw_layer = 2, hover = true, colour = args.colour,minw = args.w, min_h = args.h, button = 'select_text_input', shadow = true}, nodes={
+       {n=G.UIT.C, config={align = "cm", draw_layer = args.draw_layer, colour = G.C.CLEAR}, nodes = {
+          {n=G.UIT.C, config={id = args.id_prefix .. 'text_input', align = "cm", padding = 0.05, r = 0.1, draw_layer = args.draw_layer + 1, hover = true, colour = args.colour,minw = args.w, minh = args.h, button = 'select_text_input', shadow = true}, nodes={
             {n=G.UIT.R, config={ref_table = args, padding = 0.05, align = "cm", r = 0.1, colour = G.C.CLEAR}, nodes={
-              {n=G.UIT.R, config={ref_table = args, align = "cm", r = 0.1, colour = G.C.CLEAR, func = 'text_input'}, nodes=
+              {n=G.UIT.R, config={id = args.id_prefix .. 'text_input_inner', ref_table = args, align = "cm", r = 0.1, colour = G.C.CLEAR, func = 'text_input'}, nodes=
                 ui_letters
               }
             }}
@@ -2394,6 +2400,11 @@ function create_UIBox_settings()
     tab_definition_function = G.UIDEF.settings_tab,
     tab_definition_function_args = 'Audio'
   }
+  tabs[#tabs+1] = {
+    label = localize('m_set_mods'),
+    tab_definition_function = G.UIDEF.settings_tab,
+    tab_definition_function_args = 'Mods'
+  }
 
   local t = create_UIBox_generic_options({back_func = 'options',contents = {create_tabs(
     {tabs = tabs,
@@ -2407,7 +2418,7 @@ end
 function G.UIDEF.settings_tab(tab)
   if tab == 'Game' then
     return {n=G.UIT.ROOT, config={align = "cm", padding = 0.05, colour = G.C.CLEAR}, nodes={
-      create_option_cycle({label = localize('b_set_gamespeed'),scale = 0.8, options = {0.5, 1, 2, 4}, opt_callback = 'change_gamespeed', current_option = (G.SETTINGS.GAMESPEED == 0.5 and 1 or G.SETTINGS.GAMESPEED == 4 and 4 or G.SETTINGS.GAMESPEED + 1)}),
+      create_option_cycle({label = localize('b_set_gamespeed'),scale = 0.8, options = {0.1,0.25,0.5, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512}, opt_callback = 'change_gamespeed', current_option = (G.SETTINGS.GAMESPEED == 0.1 and 1 or G.SETTINGS.GAMESPEED == 0.25 and 2 or G.SETTINGS.GAMESPEED == 0.5 and 3 or G.SETTINGS.GAMESPEED == 1 and 4 or G.SETTINGS.GAMESPEED == 2 and 5 or G.SETTINGS.GAMESPEED == 4 and 6 or G.SETTINGS.GAMESPEED == 8 and 7 or G.SETTINGS.GAMESPEED == 16 and 8 or G.SETTINGS.GAMESPEED == 32 and 9 or G.SETTINGS.GAMESPEED == 64 and 10 or G.SETTINGS.GAMESPEED == 128 and 11 or G.SETTINGS.GAMESPEED == 256 and 12 or G.SETTINGS.GAMESPEED == 512 and 13 or 2)}),
       create_option_cycle({w = 5, label = localize('b_set_play_discard_pos'),scale = 0.8, options = localize('ml_play_discard_pos_opt'), opt_callback = 'change_play_discard_position', current_option = (G.SETTINGS.play_button_pos)}),
       G.F_RUMBLE and create_toggle({w = 1, label = localize(G.F_MOBILE and 'b_set_vibration' or 'b_set_rumble'), ref_table = G.SETTINGS, ref_value = 'rumble'}) or nil,
       create_slider({label = localize('b_set_screenshake'),w = 4, h = 0.4, ref_table = G.SETTINGS, ref_value = 'screenshake', min = 0, max = 100}),
@@ -2443,6 +2454,27 @@ function G.UIDEF.settings_tab(tab)
       create_option_cycle({w = 4,scale = 0.8, label = localize("b_set_pixel_smoothing"),options = localize('ml_smoothing_opt'), opt_callback = 'change_pixel_smoothing', current_option = G.SETTINGS.GRAPHICS.texture_scaling}),
       create_slider({label = localize('b_set_CRT'),w = 4, h = 0.4, ref_table = G.SETTINGS.GRAPHICS, ref_value = 'crt', min = 0, max = 100}),
       --create_option_cycle({w = 4,scale = 0.8, label = localize("b_set_CRT_bloom"),options = localize('ml_bloom_opt'), opt_callback = 'change_crt_bloom', current_option = G.SETTINGS.GRAPHICS.bloom}),
+    }}
+  elseif tab == 'Mods' then
+    return {n=G.UIT.ROOT, config={align = "cm", padding = 0.05, colour = G.C.CLEAR}, nodes={
+      create_toggle({label = localize('m_enable_handsize'), ref_table = G.SETTINGS, ref_value = 'enable_handsize', toggle_callback = 'toggle_handsize'}),
+      {n=G.UIT.R, config={align = "cm", minh = 1, minw = 4, padding = 0.1*0.5, colour = G.C.CLEAR}, nodes={
+        {n=G.UIT.R, config={align = "cm", padding = 0}, nodes={
+          {n=G.UIT.T, config={text = localize('m_set_handsize'), scale = 0.5, colour = G.C.UI.TEXT_LIGHT}}
+        }},
+        {n=G.UIT.R, config={align = "cm", padding = 0}, nodes={
+          create_text_input({w = 4, h = 0.4, ref_table = G.SETTINGS, ref_value = 'handsize', max_length = 308, callback = 'update_handsize', numbers_only = true, id_prefix = 'handsize_', draw_layer = 1, colour = G.C.CHIPS})
+        }}
+      }},
+      create_toggle({label = localize('m_enable_jokerslots'), ref_table = G.SETTINGS, ref_value = 'enable_jokerslots', toggle_callback = 'toggle_jokerslots'}),
+      {n=G.UIT.R, config={align = "cm", minh = 1, minw = 4, padding = 0.1*0.5, colour = G.C.CLEAR}, nodes={
+        {n=G.UIT.R, config={align = "cm", padding = 0}, nodes={
+          {n=G.UIT.T, config={text = localize('m_set_jokerslots'), scale = 0.5, colour = G.C.UI.TEXT_LIGHT}}
+        }},
+        {n=G.UIT.R, config={align = "cm", padding = 0}, nodes={
+          create_text_input({w = 4, h = 0.4, ref_table = G.SETTINGS, ref_value = 'jokerslots', max_length = 308, callback = 'update_jokerslots', numbers_only = true, id_prefix = 'jokerslots_', draw_layer = 3, colour = G.C.CHIPS})
+        }}
+      }},
     }}
   end
 

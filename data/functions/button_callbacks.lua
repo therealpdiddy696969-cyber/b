@@ -546,7 +546,12 @@ function G.FUNCS.slider(e)
   (G.CONTROLLER.dragging.target == e or
   G.CONTROLLER.dragging.target == c) then
     local rt = c.config.ref_table
-    rt.ref_table[rt.ref_value] = math.min(rt.max,math.max(rt.min, rt.min + (rt.max - rt.min)*(G.CURSOR.T.x - e.parent.T.x - G.ROOM.T.x)/e.T.w))
+    local val = rt.min + (rt.max - rt.min)*(G.CURSOR.T.x - e.parent.T.x - G.ROOM.T.x)/e.T.w
+    if rt.decimal_places == 0 then
+      rt.ref_table[rt.ref_value] = math.min(rt.max, math.max(rt.min, math.floor(val + 0.5)))
+    else
+      rt.ref_table[rt.ref_value] = math.min(rt.max, math.max(rt.min, val))
+    end
     rt.text = string.format("%."..tostring(rt.decimal_places).."f", rt.ref_table[rt.ref_value])
     c.T.w = (rt.ref_table[rt.ref_value] - rt.min)/(rt.max - rt.min)*rt.w
     c.config.w = c.T.w
@@ -566,7 +571,12 @@ function G.FUNCS.slider_descreet(e, per)
   c.states.drag.can = true
   if per then
     local rt = c.config.ref_table
-    rt.ref_table[rt.ref_value] = math.min(rt.max,math.max(rt.min, rt.ref_table[rt.ref_value] + per*(rt.max - rt.min)))
+    local val = rt.ref_table[rt.ref_value] + per*(rt.max - rt.min)
+    if rt.decimal_places == 0 then
+      rt.ref_table[rt.ref_value] = math.min(rt.max, math.max(rt.min, math.floor(val + 0.5)))
+    else
+      rt.ref_table[rt.ref_value] = math.min(rt.max, math.max(rt.min, val))
+    end
     rt.text = string.format("%."..tostring(rt.decimal_places).."f", rt.ref_table[rt.ref_value])
     c.T.w = (rt.ref_table[rt.ref_value] - rt.min)/(rt.max - rt.min)*rt.w
     c.config.w = c.T.w
@@ -949,11 +959,11 @@ G.FUNCS.text_input = function(e)
     args.current_position_text = args.position_text
   else
     e.parent.parent.config.colour = args.colour
-    args.current_prompt_text = (args.text.ref_table[args.text.ref_value] == '' and args.prompt_text or '')
+    args.current_prompt_text = (tostring(args.text.ref_table[args.text.ref_value] or '') == '' and args.prompt_text or '')
     args.current_position_text = ''
   end
 
-  if false and G.F_MOBILE then
+  if G.F_MOBILE then
 
   else
     local OSkeyboard_e = e.parent.parent.parent
@@ -1015,8 +1025,10 @@ end
 G.FUNCS.text_input_key = function(args)
   args = args or {}
 
-  if args.key == '[' or args.key == ']' then return end
-  if args.key == '0' then args.key = 'o' end
+  local hook = G.CONTROLLER.text_input_hook
+
+  if not hook.config.ref_table.numbers_only and (args.key == '[' or args.key == ']') then return end
+  if not hook.config.ref_table.numbers_only and args.key == '0' then args.key = 'o' end
 
   --shortcut to hook config
   local hook_config = G.CONTROLLER.text_input_hook.config.ref_table
@@ -1034,8 +1046,7 @@ G.FUNCS.text_input_key = function(args)
     right = 'RIGHT',
     left = 'LEFT'
   }
-  local hook = G.CONTROLLER.text_input_hook
-  local corpus = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'..(hook.config.ref_table.extended_corpus and " 0!$&()<>?:{}+-=,.[]_" or '')
+  local corpus = (hook.config.ref_table.numbers_only and '1234567890' or '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz')..(hook.config.ref_table.extended_corpus and "!$&()<>?:{}+-=,.[]_" or '')
   
   if hook.config.ref_table.extended_corpus then 
     local lower_ext = '1234567890-=;\',./'
@@ -1052,7 +1063,7 @@ G.FUNCS.text_input_key = function(args)
   --Start by setting the cursor position to the correct location
   TRANSPOSE_TEXT_INPUT(0)
 
-  if string.len(text.ref_table[text.ref_value]) > 0 and args.key == 'BACKSPACE' then --If not at start, remove preceding letter
+  if string.len(tostring(text.ref_table[text.ref_value] or '')) > 0 and args.key == 'BACKSPACE' then --If not at start, remove preceding letter
     MODIFY_TEXT_INPUT{
       letter = '',
       text_table = text,
@@ -1060,7 +1071,7 @@ G.FUNCS.text_input_key = function(args)
       delete = true
     }
     TRANSPOSE_TEXT_INPUT(-1)
-  elseif string.len(text.ref_table[text.ref_value]) > 0 and args.key == 'DELETE' then --if not at end, remove following letter
+  elseif string.len(tostring(text.ref_table[text.ref_value] or '')) > 0 and args.key == 'DELETE' then --if not at end, remove following letter
     MODIFY_TEXT_INPUT{
       letter = '',
       text_table = text,
@@ -1069,7 +1080,7 @@ G.FUNCS.text_input_key = function(args)
     }
     TRANSPOSE_TEXT_INPUT(0)
   elseif args.key == 'RETURN' then --Release the hook
-    if hook.config.ref_table.callback then hook.config.ref_table.callback() end
+    if hook.config.ref_table.callback then G.FUNCS[hook.config.ref_table.callback]() end
     hook.parent.parent.config.colour = hook_config.colour
     local temp_colour = copy_table(hook_config.orig_colour)
     hook_config.colour[1] = G.C.WHITE[1]
@@ -1081,7 +1092,7 @@ G.FUNCS.text_input_key = function(args)
     TRANSPOSE_TEXT_INPUT(-1)
   elseif args.key == 'RIGHT' then --Move cursor position to the right
     TRANSPOSE_TEXT_INPUT(1)
-  elseif hook_config.max_length > string.len(text.ref_table[text.ref_value]) and
+  elseif hook_config.max_length > string.len(tostring(text.ref_table[text.ref_value] or '')) and
         (string.len(args.key) == 1) and
         string.find( corpus,  args.key , 1, true) then --check to make sure the key is in the valid corpus, add it to the string
     MODIFY_TEXT_INPUT{
@@ -1098,7 +1109,7 @@ function GET_TEXT_FROM_INPUT()
   local new_text = ''
   local hook = G.CONTROLLER.text_input_hook
   for i = 1, #hook.children do
-    if hook.children[i].config and hook.children[i].config.id:sub(1, 7) == 'letter_' and hook.children[i].config.text ~= '' then
+    if hook.children[i].config and hook.children[i].config.id:match("letter_%d+$") and hook.children[i].config.text ~= '' then
       new_text = new_text..hook.children[i].config.text
     end
   end
@@ -1151,7 +1162,7 @@ function TRANSPOSE_TEXT_INPUT(amount)
   local text = G.CONTROLLER.text_input_hook.config.ref_table.text
   for i = 1, #hook.children do
     if hook.children[i].config then
-     if hook.children[i].config.id == 'position' then
+     if hook.children[i].config.id:match("position$") then
         position_child = i; break
       end
     end
@@ -1161,13 +1172,14 @@ function TRANSPOSE_TEXT_INPUT(amount)
   
   while amount ~= 0 do
     if position_child + dir < 1 or position_child + dir >= #hook.children then break end
-    local real_letter = hook.children[position_child+dir].config.id:sub(1, 7) == 'letter_' and hook.children[position_child+dir].config.text ~= ''
+    local cid = hook.children[position_child+dir].config.id or ''
+    local real_letter = cid:match("letter_%d+$") and hook.children[position_child+dir].config.text ~= ''
     SWAP(hook.children, position_child, position_child + dir)
     if real_letter then amount = amount - dir end
     position_child = position_child + dir
   end
 
-  text.current_position = math.min(position_child-1, string.len(text.ref_table[text.ref_value]))
+  text.current_position = math.min(position_child-1, string.len(tostring(text.ref_table[text.ref_value] or '')))
   hook.UIBox:recalculate(true)
   text.ref_table[text.ref_value] = GET_TEXT_FROM_INPUT()
 end
@@ -1418,6 +1430,7 @@ G.FUNCS.exit_overlay_menu = function()
   G.VIEWING_DECK = nil
   G.SETTINGS.paused = false
   G.CONTROLLER.touch_control.clear_touch = true
+  G.CONTROLLER.text_input_hook = nil  -- Unhook text input
 
   --Save settings to file
   G:save_settings()
@@ -1650,6 +1663,16 @@ G.FUNCS.setup_run = function(e)
   }
   if (e.config.id == 'from_game_over' or e.config.id == 'from_game_won') then G.OVERLAY_MENU.config.no_esc =true end
 end
+
+G.FUNCS.save_settings = function() G:save_settings() end
+
+G.FUNCS.toggle_handsize = function() if not G.SETTINGS.enable_handsize then G.SETTINGS.handsize = 8; G.SETTINGS.handsize = '8' else G.SETTINGS.handsize = tostring(G.SETTINGS.handsize) end G:save_settings() end
+
+G.FUNCS.update_handsize = function() G.SETTINGS.handsize = tonumber(G.SETTINGS.handsize) or 8; G:save_settings() end
+
+G.FUNCS.toggle_jokerslots = function() if not G.SETTINGS.enable_jokerslots then G.SETTINGS.jokerslots = 5; G.SETTINGS.jokerslots = '5' else G.SETTINGS.jokerslots = tostring(G.SETTINGS.jokerslots) end G:save_settings() end
+
+G.FUNCS.update_jokerslots = function() G.SETTINGS.jokerslots = tonumber(G.SETTINGS.jokerslots) or 5; G:save_settings() end
 
 G.FUNCS.wait_for_high_scores = function(e)
   if G.ARGS.HIGH_SCORE_RESPONSE then 

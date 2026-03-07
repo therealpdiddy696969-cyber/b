@@ -3698,6 +3698,11 @@ return {
             k_vouchers_cap="VOUCHERS",
             k_wins="Wins",
             k_x_base="X Base",
+            m_set_handsize="Default Handsize",
+            m_enable_handsize="Enable Custom Handsize",
+            m_set_jokerslots="Joker Slots",
+            m_enable_jokerslots="Enable Custom Joker Slots",
+            m_set_mods="Mods",
             ml_bloom_opt={
                 "Off",
                 "On",

@@ -1876,15 +1876,23 @@ function get_challenge_int_from_id(_id)
 end
 
 function get_starting_params()
-return {
-    dollars = 4,
-    hand_size = 8,
-    discards = 3,
-    hands = 4,
-    reroll_cost = 5,
-    joker_slots = 5,
-    ante_scaling = 1,
-    consumable_slots = 2,
+    local hand_size = 8
+    if G.SETTINGS.enable_handsize then
+        hand_size = tonumber(G.SETTINGS.handsize) or 8
+    end
+    local joker_slots = 5
+    if G.SETTINGS.enable_jokerslots then
+        joker_slots = tonumber(G.SETTINGS.jokerslots) or 5
+    end
+    return {
+        dollars = 4,
+        hand_size = hand_size,
+        discards = 3,
+        hands = 4,
+        reroll_cost = 5,
+        joker_slots = joker_slots,
+        ante_scaling = 1,
+    consumable_slots =2,
     no_faces = false,
     erratic_suits_and_ranks = false,
   }
