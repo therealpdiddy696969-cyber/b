@@ -1895,6 +1895,7 @@ function get_starting_params()
     consumable_slots =2,
     no_faces = false,
     erratic_suits_and_ranks = false,
+    volatile_cards = false,
   }
 end
 

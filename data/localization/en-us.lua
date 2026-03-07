@@ -129,6 +129,14 @@ return {
                     "and {C:attention,T:v_overstock_norm}#3#",
                 },
             },
+            b_volatile={
+                name="Volatile Deck",
+                text={
+                    "Randomizes every card with",
+                    "random {C:attention}seal{}, {C:attention}edition{},",
+                    "and {C:attention}enhancments{}",
+                },
+            },
         },
         Blind={
             bl_arm={
@@ -3698,6 +3706,7 @@ return {
             k_vouchers_cap="VOUCHERS",
             k_wins="Wins",
             k_x_base="X Base",
+            --mods
             m_set_handsize="Default Handsize",
             m_enable_handsize="Enable Custom Handsize",
             m_set_jokerslots="Joker Slots",
@@ -3705,6 +3714,8 @@ return {
             m_set_mods="Mods",
             m_enable_soulchance="Enable Soul Card Chance Modifiers",
             m_set_soulchance="Soul Card Chance",
+            m_enable_decks="Enable Custom Decks",
+            --mods
             ml_bloom_opt={
                 "Off",
                 "On",

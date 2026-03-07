@@ -210,8 +210,8 @@ function Card:set_sprites(_center, _front)
         end
 
         if not self.children.back then
-            self.children.back = Sprite(self.T.x, self.T.y, self.T.w, self.T.h, G.ASSET_ATLAS["centers"], self.params.bypass_back or (self.playing_card and G.GAME[self.back].pos or G.P_CENTERS['b_red'].pos))
-            self.children.back.states.hover = self.states.hover
+            print("back atlas:", self.playing_card and G.GAME[self.back] and G.GAME[self.back].effect and G.GAME[self.back].effect.center and G.GAME[self.back].effect.center.atlas)
+            self.children.back = Sprite(self.T.x, self.T.y, self.T.w, self.T.h, G.ASSET_ATLAS[self.playing_card and G.GAME[self.back] and G.GAME[self.back].atlas or "centers"], self.params.bypass_back or (self.playing_card and G.GAME[self.back].pos or G.P_CENTERS['b_red'].pos))
             self.children.back.states.click = self.states.click
             self.children.back.states.drag = self.states.drag
             self.children.back.states.collide.can = false
@@ -4555,8 +4555,9 @@ function Card:draw(layer)
                 self.back_overlay[4] = 1
                 overlay = self.back_overlay
             end
-
             if self.area and self.area.config.type == 'deck' then
+                self.children.back.atlas = G.ASSET_ATLAS[(G.GAME[self.back] and G.GAME[self.back].effect and G.GAME[self.back].effect.center and G.GAME[self.back].effect.center.atlas) or "centers"]
+                self.children.back:set_sprite_pos((G.GAME[self.back] and G.GAME[self.back].pos) or G.P_CENTERS['b_red'].pos)
                 self.children.back:draw(overlay)
             else
                 self.children.back:draw_shader('dissolve')

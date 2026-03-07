@@ -79,7 +79,8 @@ function Game:start_up()
     self.SETTINGS.jokerslots = tonumber(self.SETTINGS.jokerslots) or 5
     self.SETTINGS.enable_jokerslots = self.SETTINGS.enable_jokerslots or false
     self.SETTINGS.enable_soulchance = self.SETTINGS.enable_soulchance or false
-    self.SETTINGS.soulchance = self.SETTINGS.soulchance or 3
+    self.SETTINGS.soulchance = self.SETTINGS.soulchance or 0.3
+    self.SETTINGS.enable_decks = self.SETTINGS.enable_decks or false
     --Mods
     -- :MDM: moving init window to before splash video
     --boot_timer('settings', 'window init', 0.2)
@@ -662,9 +663,8 @@ function Game:init_item_prototypes()
         b_anaglyph = { name = "Anaglyph Deck", stake = 1, demo = true, unlocked = false, start_locked = true, order = 13, pos = { x = 2, y = 4 }, set = "Back", config = {}, unlock_condition = { type = 'win_stake', stake = 4 } },
         b_plasma = { name = "Plasma Deck", stake = 1, demo = true, unlocked = false, start_locked = true, order = 14, pos = { x = 4, y = 2 }, set = "Back", config = { ante_scaling = 2 }, unlock_condition = { type = 'win_stake', stake = 5 } },
         b_erratic = { name = "Erratic Deck", stake = 1, demo = true, unlocked = false, start_locked = true, order = 15, pos = { x = 2, y = 3 }, set = "Back", config = { randomize_rank_suit = true }, unlock_condition = { type = 'win_stake', stake = 7 } },
-
         b_challenge = { name = "Challenge Deck", stake = 1, demo = true, unlocked = true, order = 16, pos = { x = 0, y = 4 }, set = "Back", config = {}, omit = true },
-
+        b_volatile = { name = "Volatile Deck", stake = 1, demo = true, unlocked = false, start_locked = true, order = 17, pos = { x = 0, y = 0 }, set = "Back", config = { randomize_all = true }, unlock_condition = { type = 'win_stake', stake = 8 }, atlas='mod_decks' },
 
         --All enhanced card types here
         m_bonus = { max = 500, order = 2, name = "Bonus", set = "Enhanced", pos = { x = 1, y = 1 }, effect = "Bonus Card", label = "Bonus Card", config = { bonus = 30 } },
@@ -722,6 +722,10 @@ function Game:init_item_prototypes()
         undiscovered_joker = { pos = { x = 5, y = 3 } },
         undiscovered_tarot = { pos = { x = 6, y = 3 } },
     }
+
+    if not (self.SETTINGS.enable_decks) then
+        self.P_CENTERS.b_volatile = nil
+    end
 
     self.P_CENTER_POOLS = {
         Booster = {},
@@ -1045,6 +1049,7 @@ function Game:set_render_settings()
         { name = 'collab_VS_2',   path = "resources/textures/" .. self.SETTINGS.GRAPHICS.texture_scaling .. "x/collabs/collab_VS_2.png", px = 71, py = 95 },
         { name = 'collab_DTD_1',  path = "resources/textures/" .. self.SETTINGS.GRAPHICS.texture_scaling .. "x/collabs/collab_DTD_1.png", px = 71, py = 95 },
         { name = 'collab_DTD_2',  path = "resources/textures/" .. self.SETTINGS.GRAPHICS.texture_scaling .. "x/collabs/collab_DTD_2.png", px = 71, py = 95 },
+        { name = 'mod_decks',     path = "resources/textures/" .. self.SETTINGS.GRAPHICS.texture_scaling .. "x/mods/decks.png",           px = 71, py = 95 },
 
         { name = 'collab_CYP_1',  path = "resources/textures/" .. self.SETTINGS.GRAPHICS.texture_scaling .. "x/collabs/collab_CYP_1.png", px = 71, py = 95 },
         { name = 'collab_CYP_2',  path = "resources/textures/" .. self.SETTINGS.GRAPHICS.texture_scaling .. "x/collabs/collab_CYP_2.png", px = 71, py = 95 },
@@ -2781,9 +2786,16 @@ function Game:start_run(args)
                     if _de.edition then _d = _de.edition end
                     if _de.gold_seal then _g = _de.gold_seal end
                 end
-
+                
                 if self.GAME.starting_params.no_faces and (_r == 'K' or _r == 'Q' or _r == 'J') then keep = false end
-
+                if self.GAME.starting_params.volatile_cards then
+                    local seals = {'Gold', 'Red', 'Blue', 'Purple'}
+                    local editions = {'foil', 'holo', 'polychrome'}
+                    local enhancements = {'m_bonus','m_mult','m_wild','m_glass','m_steel','m_stone','m_gold','m_lucky'}
+                    _e = enhancements[math.random(#enhancements)]
+                    _d = editions[math.random(#editions)]
+                    _g = seals[math.random(#seals)]
+                end
                 if keep then card_protos[#card_protos + 1] = { s = _s, r = _r, e = _e, d = _d, g = _g } end
             end
         end

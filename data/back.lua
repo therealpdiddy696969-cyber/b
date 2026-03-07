@@ -17,6 +17,7 @@ function Back:init(selected_back)
     self.pos = self.pos or {}
     self.pos.x = pos.x
     self.pos.y = pos.y
+    self.atlas = selected_back.atlas or 'centers'
 end
 
 function Back:get_name()
@@ -69,6 +70,7 @@ function Back:generate_UI(other, ui_scale, min_dims, challenge)
         elseif name_to_check == 'Anaglyph Deck' then loc_args = {localize{type = 'name_text', key = 'tag_double', set = 'Tag'}}
         elseif name_to_check == 'Plasma Deck' then loc_args = {effect_config.ante_scaling}
         elseif name_to_check == 'Erratic Deck' then
+        elseif name_to_check == 'Volatile Deck' then
         end
         localize{type = 'descriptions', key = back_config.key, set = 'Back', nodes = loc_nodes, vars = loc_args}
     end
@@ -93,6 +95,7 @@ function Back:change_to(new_back)
     local pos = self.effect.center.unlocked and copy_table(new_back.pos) or {x = 4, y = 0}
     self.pos.x = pos.x
     self.pos.y = pos.y
+    self.atlas = new_back.atlas or 'centers'
 end
 
 function Back:save()
@@ -276,6 +279,9 @@ function Back:apply_to_run()
     end
     if self.effect.config.extra_discard_bonus then 
         G.GAME.modifiers.money_per_discard = self.effect.config.extra_discard_bonus
+    end
+    if self.effect.config.randomize_all then
+        G.GAME.starting_params.volatile_cards = true
     end
 end
 
