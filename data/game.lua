@@ -1371,7 +1371,6 @@ function Game:save_settings()
     G.FILE_HANDLER = G.FILE_HANDLER or {}
     G.FILE_HANDLER.settings = true
     G.FILE_HANDLER.update_queued = true
-    G.FILE_HANDLER.force = true
 
     G.FILES[G.SETTINGS.profile .. '/profile.jkr'] = G.PROFILES[G.SETTINGS.profile]
 end
