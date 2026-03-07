@@ -132,9 +132,9 @@ return {
             b_volatile={
                 name="Volatile Deck",
                 text={
-                    "Randomizes every card with",
+                    "All cards have a",
                     "random {C:attention}seal{}, {C:attention}edition{},",
-                    "and {C:attention}enhancments{}",
+                    "and {C:attention}enhancment{}",
                 },
             },
         },
