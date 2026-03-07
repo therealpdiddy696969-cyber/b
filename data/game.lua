@@ -78,6 +78,8 @@ function Game:start_up()
     self.SETTINGS.enable_handsize = self.SETTINGS.enable_handsize or false
     self.SETTINGS.jokerslots = tonumber(self.SETTINGS.jokerslots) or 5
     self.SETTINGS.enable_jokerslots = self.SETTINGS.enable_jokerslots or false
+    self.SETTINGS.enable_soulchance = self.SETTINGS.enable_soulchance or false
+    self.SETTINGS.soulchance = self.SETTINGS.soulchance or 3
     --Mods
     -- :MDM: moving init window to before splash video
     --boot_timer('settings', 'window init', 0.2)

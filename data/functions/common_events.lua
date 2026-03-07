@@ -2140,10 +2140,14 @@ function create_card(_type, area, legendary, _rarity, skip_materialize, soulable
     end
     print("create_card1".._type)
     --should pool be skipped with a forced key
+    soul_chance=0.003
+    if G.SETTINGS.enable_soulchance then
+        soul_chance = G.SETTINGS.soulchance/100 or 0.003
+    end
     if not forced_key and soulable and (not G.GAME.banned_keys['c_soul']) then
         if (_type == 'Tarot' or _type == 'Spectral' or _type == 'Tarot_Planet') and
         not (G.GAME.used_jokers['c_soul'] and not next(find_joker("Showman")))  then
-            if pseudorandom('soul_'.._type..G.GAME.round_resets.ante) > 0.997 then
+            if pseudorandom('soul_'.._type..G.GAME.round_resets.ante) > 1-soul_chance then
                 forced_key = 'c_soul'
             end
         end

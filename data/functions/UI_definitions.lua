@@ -2457,6 +2457,8 @@ function G.UIDEF.settings_tab(tab)
     }}
   elseif tab == 'Mods' then
     return {n=G.UIT.ROOT, config={align = "cm", padding = 0.05, colour = G.C.CLEAR}, nodes={
+      create_toggle({label = localize('m_enable_soulchance'), ref_table = G.SETTINGS, ref_value = 'enable_soulchance', toggle_callback = 'toggle_soulchance'}),
+      create_slider({label = localize('m_set_soulchance'),w = 4, h = 0.4, ref_table = G.SETTINGS, ref_value = 'soulchance', min = 0, max = 100, callback = 'update_soulchance',decimal_places = 0}),
       create_toggle({label = localize('m_enable_handsize'), ref_table = G.SETTINGS, ref_value = 'enable_handsize', toggle_callback = 'toggle_handsize'}),
       {n=G.UIT.R, config={align = "cm", minh = 1, minw = 4, padding = 0.1*0.5, colour = G.C.CLEAR}, nodes={
         {n=G.UIT.R, config={align = "cm", padding = 0}, nodes={

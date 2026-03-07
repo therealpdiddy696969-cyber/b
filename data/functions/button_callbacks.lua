@@ -1667,8 +1667,6 @@ end
 
 G.FUNCS.save_settings = function() G:save_settings() end
 
-G.FUNCS.toggle_speed = function() if not G.SETTINGS.enable_speed then G.SETTINGS.speed = 1; G.SETTINGS.speed = '1' else G.SETTINGS.speed = tostring(G.SETTINGS.speed) end G:save_settings() end
-
 G.FUNCS.toggle_handsize = function() if not G.SETTINGS.enable_handsize then G.SETTINGS.handsize = 8; G.SETTINGS.handsize = '8' else G.SETTINGS.handsize = tostring(G.SETTINGS.handsize) end G:save_settings() end
 
 G.FUNCS.update_handsize = function() G.SETTINGS.handsize = tonumber(G.SETTINGS.handsize) or 8; G:save_settings() end
@@ -1676,6 +1674,10 @@ G.FUNCS.update_handsize = function() G.SETTINGS.handsize = tonumber(G.SETTINGS.h
 G.FUNCS.toggle_jokerslots = function() if not G.SETTINGS.enable_jokerslots then G.SETTINGS.jokerslots = 5; G.SETTINGS.jokerslots = '5' else G.SETTINGS.jokerslots = tostring(G.SETTINGS.jokerslots) end G:save_settings() end
 
 G.FUNCS.update_jokerslots = function() G.SETTINGS.jokerslots = tonumber(G.SETTINGS.jokerslots) or 5; G:save_settings() end
+
+G.FUNCS.toggle_soulchance = function() if not G.SETTINGS.enable_soulchance then G.SETTINGS.soulchance = 0.003; G.SETTINGS.soulchance = 0.003 else G.SETTINGS.soulchance = tostring(G.SETTINGS.soulchance) end G:save_settings() end
+
+G.FUNCS.update_soulchance = function() G.SETTINGS.soulchance = G.SETTINGS.soulchance or 0.003; G:save_settings() end
 
 G.FUNCS.wait_for_high_scores = function(e)
   if G.ARGS.HIGH_SCORE_RESPONSE then 

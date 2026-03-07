@@ -3703,6 +3703,8 @@ return {
             m_set_jokerslots="Joker Slots",
             m_enable_jokerslots="Enable Custom Joker Slots",
             m_set_mods="Mods",
+            m_enable_soulchance="Enable Soul Card Chance Modifiers",
+            m_set_soulchance="Soul Card Chance",
             ml_bloom_opt={
                 "Off",
                 "On",
