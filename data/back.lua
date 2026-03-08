@@ -71,6 +71,7 @@ function Back:generate_UI(other, ui_scale, min_dims, challenge)
         elseif name_to_check == 'Plasma Deck' then loc_args = {effect_config.ante_scaling}
         elseif name_to_check == 'Erratic Deck' then
         elseif name_to_check == 'Volatile Deck' then
+        elseif name_to_check == 'Voucher Deck' then loc_args = {localize{type = 'name_text', key = 'tag_voucher', set = 'Tag'}}
         end
         localize{type = 'descriptions', key = back_config.key, set = 'Back', nodes = loc_nodes, vars = loc_args}
     end
@@ -117,6 +118,20 @@ function Back:trigger_effect(args)
         G.E_MANAGER:add_event(Event({
             func = (function()
                 add_tag(Tag('tag_double'))
+                play_sound('generic1', 0.9 + math.random()*0.1, 0.8)
+                play_sound('holo1', 1.2 + math.random()*0.1, 0.4)
+                return true
+            end)
+        }))
+    end
+    if self.name == 'Voucher Deck' and args.context == 'eval' and G.GAME.last_blind and G.GAME.last_blind.boss then
+        G.E_MANAGER:add_event(Event({
+            func = (function()
+                add_tag(Tag('tag_voucher'))
+                add_tag(Tag('tag_voucher'))
+                add_tag(Tag('tag_voucher'))
+                add_tag(Tag('tag_voucher'))
+                ease_dollars(50)
                 play_sound('generic1', 0.9 + math.random()*0.1, 0.8)
                 play_sound('holo1', 1.2 + math.random()*0.1, 0.4)
                 return true

@@ -1513,6 +1513,17 @@ function check_for_unlock(args)
                     end
                 end
             end
+            if args.type == 'common_jokers' and G.jokers then
+                local count = 0
+                for _, v in pairs(G.jokers.cards) do
+                    if v.config.center.rarity == 1 then count = count + 1 end
+                end
+                print('COMMON_JOKERS CHECK: card='..tostring(card.name)..' count='..tostring(count)..' needed='..tostring(card.unlock_condition and card.unlock_condition.extra))
+                if count >= card.unlock_condition.extra then
+                    ret = true
+                    unlock_card(card)
+                end
+            end
             if args.type == 'money' then
                 if card.unlock_condition.extra <= G.GAME.dollars then
                     ret = true
@@ -2360,6 +2371,23 @@ function reset_idol_card()
         G.GAME.current_round.idol_card.rank = idol_card.base.value
         G.GAME.current_round.idol_card.suit = idol_card.base.suit
         G.GAME.current_round.idol_card.id = idol_card.base.id
+    end
+end
+
+function reset_mccandlish_card()
+    G.GAME.current_round.mccandlish_card.rank = 'Ace'
+    G.GAME.current_round.mccandlish_card.suit = 'Spades'
+    local valid_mccandlish_cards = {}
+    for k, v in ipairs(G.playing_cards) do
+        if v.ability.effect ~= 'Stone Card' then
+            valid_mccandlish_cards[#valid_mccandlish_cards+1] = v
+        end
+    end
+    if valid_mccandlish_cards[1] then 
+        local mccandlish_card = pseudorandom_element(valid_mccandlish_cards, pseudoseed('mcc'..G.GAME.round_resets.ante))
+        G.GAME.current_round.mccandlish_card.rank = mccandlish_card.base.value
+        G.GAME.current_round.mccandlish_card.suit = mccandlish_card.base.suit
+        G.GAME.current_round.mccandlish_card.id = mccandlish_card.base.id
     end
 end
 

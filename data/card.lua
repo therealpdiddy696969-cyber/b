@@ -162,7 +162,7 @@ function Card:set_sprites(_center, _front)
     if _center then 
         if _center.set then
             if self.children.center then
-                self.children.center.atlas = G.ASSET_ATLAS[(_center.atlas or (_center.set == 'Joker' or _center.consumeable or _center.set == 'Voucher') and _center.set) or 'centers']
+                self.children.center.atlas = G.ASSET_ATLAS[_center.atlas or ((_center.set == 'Joker' or _center.consumeable or _center.set == 'Voucher') and _center.set) or 'centers']
                 self.children.center:set_sprite_pos(_center.pos)
             else
                 if _center.set == 'Joker' and not _center.unlocked and not self.params.bypass_discovery_center then 
@@ -172,7 +172,7 @@ function Card:set_sprites(_center, _front)
                 elseif self.config.center.consumeable and self.config.center.demo then 
                     self.children.center = Sprite(self.T.x, self.T.y, self.T.w, self.T.h, G.ASSET_ATLAS["Tarot"], G.c_locked.pos)
                 elseif not self.params.bypass_discovery_center and (_center.set == 'Edition' or _center.set == 'Joker' or _center.consumeable or _center.set == 'Voucher' or _center.set == 'Booster') and not _center.discovered then 
-                    self.children.center = Sprite(self.T.x, self.T.y, self.T.w, self.T.h, G.ASSET_ATLAS[_center.atlas or _center.set], 
+                    self.children.center = Sprite(self.T.x, self.T.y, self.T.w, self.T.h, G.ASSET_ATLAS[(_center.set == 'Joker' and 'Joker') or (_center.consumeable and 'Tarot') or (_center.set == 'Voucher' and 'Voucher') or _center.set], 
                     (_center.set == 'Joker' and G.j_undiscovered.pos) or 
                     (_center.set == 'Edition' and G.j_undiscovered.pos) or 
                     (_center.set == 'Tarot' and G.t_undiscovered.pos) or 
@@ -181,7 +181,7 @@ function Card:set_sprites(_center, _front)
                     (_center.set == 'Voucher' and G.v_undiscovered.pos) or 
                     (_center.set == 'Booster' and G.booster_undiscovered.pos))
                 elseif _center.set == 'Joker' or _center.consumeable or _center.set == 'Voucher' then
-                    self.children.center = Sprite(self.T.x, self.T.y, self.T.w, self.T.h, G.ASSET_ATLAS[_center.set], self.config.center.pos)
+                    self.children.center = Sprite(self.T.x, self.T.y, self.T.w, self.T.h, G.ASSET_ATLAS[_center.atlas or _center.set], _center.pos)
                 else
                     self.children.center = Sprite(self.T.x, self.T.y, self.T.w, self.T.h, G.ASSET_ATLAS[_center.atlas or 'centers'], _center.pos)
                 end
@@ -356,10 +356,12 @@ function Card:set_ability(center, initial, delay_sprites)
 
     if G.jokers and self.area == G.jokers then 
         check_for_unlock({type = 'modify_jokers'})
+        check_for_unlock({type = 'common_jokers'})
     end
 
     if G.consumeables and self.area == G.consumeables then 
         check_for_unlock({type = 'modify_jokers'})
+        check_for_unlock({type = 'common_jokers'})
     end
 
     if not initial then G.GAME.blind:debuff_card(self) end
@@ -919,6 +921,11 @@ function Card:generate_UIBox_ability_table()
         elseif self.ability.name == 'Yorick' then loc_vars = {self.ability.extra.xmult, self.ability.extra.discards, self.ability.yorick_discards, self.ability.x_mult}
         elseif self.ability.name == 'Chicot' then
         elseif self.ability.name == 'Perkeo' then loc_vars = {self.ability.extra}
+
+
+        elseif self.ability.name == 'Mr. McCandlish' then loc_vars = {'10 points', 'off for', 'talking'}
+        elseif self.ability.name == 'The Pursuer' then loc_vars = {self.ability.extra, self.ability.x_mult}
+        elseif self.ability.name == 'Locker' then loc_vars = {}
         end
     end
     local badges = {}
@@ -2372,6 +2379,21 @@ function Card:calculate_joker(context)
                     end)
                 }))
             end
+            if self.ability.name == 'Locker' then
+                local locker_index = nil
+                for i, v in ipairs(G.jokers.cards) do
+                    if v == self then locker_index = i; break end
+                end
+                print('LOCKER: index='..tostring(locker_index)..' total_jokers='..tostring(#G.jokers.cards))
+                if locker_index and locker_index > 1 then
+                 local left_joker = G.jokers.cards[locker_index - 1]
+                    print('LOCKER: left_joker='..tostring(left_joker and left_joker.ability.name)..' eternal='..tostring(left_joker and left_joker.ability.eternal))
+                    if left_joker and not left_joker.ability.eternal then
+                        left_joker:set_eternal(true)
+                        card_eval_status_text(left_joker, 'extra', nil, nil, nil, {message = localize('k_eternal')})
+                    end
+                end
+            end
             if self.ability.name == 'Invisible Joker' and (self.ability.invis_rounds >= self.ability.extra) and not context.blueprint then
                 local eval = function(card) return (card.ability.loyalty_remaining == 0) and not G.RESET_JIGGLES end
                                     juice_card_until(self, eval, true)
@@ -2521,6 +2543,25 @@ function Card:calculate_joker(context)
                 end
                 if not (context.blueprint_card or self).getting_sliced then
                     card_eval_status_text((context.blueprint_card or self), 'extra', nil, nil, nil, {message = localize{type = 'variable', key = 'a_xmult', vars = {self.ability.x_mult}}})
+                end
+            end
+            if self.ability.name == 'The Pursuer' and not context.blueprint and not self.getting_sliced then
+                local destructable_jokers = {}
+                for i = 1, #G.jokers.cards do
+                    if G.jokers.cards[i] ~= self and not G.jokers.cards[i].ability.eternal and not G.jokers.cards[i].getting_sliced and G.jokers.cards[i].config.center.rarity == 1 then destructable_jokers[#destructable_jokers+1] = G.jokers.cards[i] end
+                end
+                if #destructable_jokers > 0 then
+                    for _, joker_to_destroy in ipairs(destructable_jokers) do
+                        joker_to_destroy.getting_sliced = true
+                        self.ability.x_mult = self.ability.x_mult + self.ability.extra
+                        G.E_MANAGER:add_event(Event({func = function()
+                            (context.blueprint_card or self):juice_up(0.8, 0.8)
+                            joker_to_destroy:start_dissolve({G.C.RED}, nil, 1.6)
+                        return true end }))
+                    end
+                    G.E_MANAGER:add_event(Event({func = function()
+                        card_eval_status_text((context.blueprint_card or self), 'extra', nil, nil, nil, {message = localize{type = 'variable', key = 'a_xmult', vars = {self.ability.x_mult}}})
+                    return true end }))
                 end
             end
             if self.ability.name == 'Burglar' and not (context.blueprint_card or self).getting_sliced then
@@ -3133,6 +3174,13 @@ function Card:calculate_joker(context)
                     context.other_card:is_suit(G.GAME.current_round.idol_card.suit) then
                         return {
                             x_mult = self.ability.extra,
+                            colour = G.C.RED,
+                            card = self
+                        }
+                    end
+                if self.ability.name == 'Mr. McCandlish' and G.GAME.current_round.mccandlish_card and G.GAME.current_round.mccandlish_card.id and not (context.other_card:get_id() == G.GAME.current_round.mccandlish_card.id and context.other_card:is_suit(G.GAME.current_round.mccandlish_card.suit)) then
+                        return {
+                            mult = self.ability.extra,
                             colour = G.C.RED,
                             card = self
                         }

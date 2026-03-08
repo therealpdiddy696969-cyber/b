@@ -460,6 +460,7 @@ function Game:set_globals()
         ORANGE = HEX("fda200"),
         IMPORTANT = HEX("ff9a00"),
         GOLD = HEX('eac058'),
+        TEAL = HEX('40E0D0'),
         YELLOW = {1,1,0,1},
         CLEAR = {0, 0, 0, 0}, 
         WHITE = {1,1,1,1},

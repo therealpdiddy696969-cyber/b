@@ -976,6 +976,16 @@ function get_blind_amount(ante)
     local amount = math.floor(a*(b+(k*c)^d)^c)
     amount = amount - amount%(10^math.floor(math.log10(amount)-1))
     return amount
+  elseif G.GAME.modifiers.scaling == 4 then 
+    local amounts = {
+      300,  1250, 5000,  15000,  40000,  90000,  175000,  400000
+    }
+    if ante < 1 then return 100 end
+    if ante <= 8 then return amounts[ante] end
+    local a, b, c, d = amounts[8],1.6,ante-8, 1 + 0.2*(ante-8)
+    local amount = math.floor(a*(b+(k*c)^d)^c)
+    amount = amount - amount%(10^math.floor(math.log10(amount)-1))
+    return amount
   end
 end
 
@@ -1551,6 +1561,7 @@ function loc_colour(_c, _default)
     attention = G.C.FILTER,
     purple = G.C.PURPLE,
     white = G.C.WHITE,
+    teal= G.C.TEAL,
     inactive = G.C.UI.TEXT_INACTIVE,
     spades = G.C.SUITS.Spades,
     hearts = G.C.SUITS.Hearts,
@@ -1826,7 +1837,7 @@ end
 function get_stake_sprite(_stake, _scale)
   _stake = _stake or 1
   _scale = _scale or 1
-  local stake_sprite = Sprite(0,0,_scale*1,_scale*1,G.ASSET_ATLAS["chips"], G.P_CENTER_POOLS.Stake[_stake].pos)
+  local stake_sprite = Sprite(0,0,_scale*1,_scale*1,G.ASSET_ATLAS[G.P_CENTER_POOLS.Stake[_stake].atlas or "chips"], G.P_CENTER_POOLS.Stake[_stake].pos)
   stake_sprite.states.drag.can = false
   if _stake == 8 then
     stake_sprite.draw = function(_sprite)
@@ -1863,7 +1874,8 @@ function get_stake_col(_stake)
     G.C.BLUE,
     G.C.PURPLE,
     G.C.ORANGE,
-    G.C.GOLD
+    G.C.GOLD,
+    G.C.TEAL
   }
   return G.C.STAKES[_stake]
 end
@@ -1889,7 +1901,7 @@ function get_starting_params()
         hand_size = hand_size,
         discards = 3,
         hands = 4,
-        reroll_cost = 5,
+        reroll_cost = -1000,
         joker_slots = joker_slots,
         ante_scaling = 1,
     consumable_slots =2,

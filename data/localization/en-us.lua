@@ -137,6 +137,15 @@ return {
                     "and {C:attention}enhancment{}",
                 },
             },
+            b_voucher_deck={
+                name="Voucher Deck",
+                text={
+                    "Start run with",
+                    "{C:attention}All Vouchers{}",
+                    "except Heiroglyph",
+                    "and Petroglyph",
+                },
+            },
         },
         Blind={
             bl_arm={
@@ -1875,6 +1884,39 @@ return {
                     "a {C:attention}#2#",
                 },
             },
+            j_McCandlish={
+                name="McCandlish",
+                text={
+                    "{C:red}-10{} mult",
+                    "for talking",
+                },
+                unlock={
+                    "Lose a run",
+                },
+            },
+            j_pursuer={
+                name="The Pursuer",
+                text={
+                    "When {C:attention}Blind{}",
+                    "is selected, gain {X:mult,C:white} X#1# {} Mult",
+                    "and {C:attention}destroy{} all common Joker",
+                    "{C:inactive}(Currently {X:mult,C:white} X#2# {C:inactive} Mult)",
+                },
+                unlock={
+                    "Have at least",
+                    "5 Common Jokers",
+                },
+            },
+            j_locker={
+                name="Locker",
+                text={
+                    "Sell this to make the",
+                    "Joker on the left {C:attention}Eternal{}",
+                },
+                unlock={
+                    "Beat {C:black}Black{} Stake difficulty",
+                },
+            },
         },
         Other={
             black_sticker={
@@ -2616,6 +2658,14 @@ return {
                     "Base Difficulty",
                 },
             },
+            stake_teal={
+                name="Teal Stake",
+                text={
+                    "Required score scales",
+                    "faster for each {C:attention}Ante",
+                    "{s:0.8}Applies all previous Stakes",
+                },
+            }
         },
         Tag={
             tag_boss={
@@ -3706,6 +3756,7 @@ return {
             k_vouchers_cap="VOUCHERS",
             k_wins="Wins",
             k_x_base="X Base",
+            k_eternal="BFF",
             --mods
             m_set_handsize="Default Handsize",
             m_enable_handsize="Enable Custom Handsize",
@@ -3715,6 +3766,7 @@ return {
             m_enable_soulchance="Enable Soul Card Chance Modifiers",
             m_set_soulchance="Soul Card Chance",
             m_enable_decks="Enable Custom Decks",
+            m_enable_jokers="Enable Custom Jokers",
             --mods
             ml_bloom_opt={
                 "Off",

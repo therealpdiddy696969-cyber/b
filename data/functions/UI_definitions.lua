@@ -143,11 +143,11 @@ function create_UIBox_debug_tools()
 end
 
 function create_UIBox_notify_alert(_achievement, _type, _from_left)
-  local _c, _atlas = G.P_CENTERS[_achievement],
-    _type == 'Joker' and G.ASSET_ATLAS["Joker"] or
-    _type == 'Voucher' and G.ASSET_ATLAS["Voucher"] or
-    _type == 'Back' and G.ASSET_ATLAS["centers"] or
-    G.ASSET_ATLAS["icons"]
+  local _c = G.P_CENTERS[_achievement]
+  local _atlas_key = (_type == 'Joker' and (_c and _c.atlas or "Joker")) or
+    (_type == 'Voucher' and (_c and _c.atlas or "Voucher")) or
+    (_type == 'Back' and (_c and _c.atlas or "centers"))
+  local _atlas = _atlas_key and G.ASSET_ATLAS[_atlas_key] or G.ASSET_ATLAS["icons"]
 
   local t_s = Sprite(0,0,1.5*(_atlas.px/_atlas.py),1.5,_atlas, _c and _c.pos or {x=3, y=0})
   t_s.states.drag.can = false
@@ -2458,6 +2458,7 @@ function G.UIDEF.settings_tab(tab)
   elseif tab == 'Mods' then
     return {n=G.UIT.ROOT, config={align = "cm", padding = 0.05, colour = G.C.CLEAR}, nodes={
       create_toggle({label = localize('m_enable_decks'), ref_table = G.SETTINGS, ref_value = 'enable_decks', toggle_callback = 'save_settings'}),
+      create_toggle({label = localize('m_enable_jokers'), ref_table = G.SETTINGS, ref_value = 'enable_jokers', toggle_callback = 'save_settings'}),
       create_toggle({label = localize('m_enable_soulchance'), ref_table = G.SETTINGS, ref_value = 'enable_soulchance', toggle_callback = 'toggle_soulchance'}),
       create_slider({label = localize('m_set_soulchance'),w = 4, h = 0.4, ref_table = G.SETTINGS, ref_value = 'soulchance', min = 0, max = 100, callback = 'update_soulchance',decimal_places = 0}),
       create_toggle({label = localize('m_enable_handsize'), ref_table = G.SETTINGS, ref_value = 'enable_handsize', toggle_callback = 'toggle_handsize'}),
@@ -5640,7 +5641,7 @@ function G.UIDEF.stake_option(_type)
     max_stake = get_deck_win_stake(G.GAME.viewed_back.effect.center.key)
     if G.PROFILES[G.SETTINGS.profile].all_unlocked then max_stake = 8 end
     stake_options = {}
-    for i = 1, math.min(max_stake+1, 8) do
+    for i = 1, math.min(max_stake+1, 9) do
       stake_options[i] = i
     end
   else
@@ -5657,7 +5658,7 @@ end
 function G.UIDEF.viewed_stake_option()
   G.viewed_stake = G.viewed_stake or 1
   local max_stake = get_deck_win_stake(G.GAME.viewed_back.effect.center.key)
-  if G.PROFILES[G.SETTINGS.profile].all_unlocked then max_stake = 8 end
+  if G.PROFILES[G.SETTINGS.profile].all_unlocked then max_stake = 9 end
   G.viewed_stake = math.min(max_stake+1, G.viewed_stake)
   if _type ~= 'Continue' then G.PROFILES[G.SETTINGS.profile].MEMORY.stake = G.viewed_stake end
   

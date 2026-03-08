@@ -292,6 +292,7 @@ function end_round()
                         if G.GAME.round_resets.temp_reroll_cost then G.GAME.round_resets.temp_reroll_cost = nil; calculate_reroll_cost(true) end
 
                         reset_idol_card()
+                        reset_mccandlish_card()
                         reset_mail_rank()
                         reset_ancient_card()
                         reset_castle_card()

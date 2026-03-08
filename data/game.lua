@@ -81,6 +81,7 @@ function Game:start_up()
     self.SETTINGS.enable_soulchance = self.SETTINGS.enable_soulchance or false
     self.SETTINGS.soulchance = self.SETTINGS.soulchance or 0.3
     self.SETTINGS.enable_decks = self.SETTINGS.enable_decks or false
+    self.SETTINGS.enable_jokers = self.SETTINGS.enable_jokers or false
     --Mods
     -- :MDM: moving init window to before splash video
     --boot_timer('settings', 'window init', 0.2)
@@ -273,6 +274,7 @@ function Game:init_item_prototypes()
         stake_purple = { name = 'Purple Chip', unlocked = false, start_locked = true, order = 6, pos = { x = 0, y = 1 }, stake_level = 6, set = 'Stake' },
         stake_orange = { name = 'Orange Chip', unlocked = false, start_locked = true, order = 7, pos = { x = 1, y = 1 }, stake_level = 7, set = 'Stake' },
         stake_gold = { name = 'Gold Chip', unlocked = false, start_locked = true, order = 8, pos = { x = 2, y = 1 }, stake_level = 8, set = 'Stake' },
+        stake_teal = { name = 'Teal Chip', unlocked = false, start_locked = true, order = 9, pos = { x = 0, y = 0 }, stake_level = 9, set = 'Stake', atlas= 'mod_stakes' },
     }
 
     self.P_BLINDS = self.P_BLINDS or {
@@ -550,6 +552,9 @@ function Game:init_item_prototypes()
         j_chicot = { order = 149, unlocked = false, start_locked = true, demo = true, discovered = false, blueprint_compat = false, perishable_compat = true, eternal_compat = true, rarity = 4, cost = 20, name = "Chicot", pos = { x = 6, y = 8 }, soul_pos = { x = 6, y = 9 }, set = "Joker", effect = "", config = {}, unlock_condition = { type = '', extra = '', hidden = true } },
         j_perkeo = { order = 150, unlocked = false, start_locked = true, demo = true, discovered = false, blueprint_compat = true, perishable_compat = true, eternal_compat = true, rarity = 4, cost = 20, name = "Perkeo", pos = { x = 7, y = 8 }, soul_pos = { x = 7, y = 9 }, set = "Joker", effect = "", config = {}, unlock_condition = { type = '', extra = '', hidden = true } },
 
+        j_McCandlish = { order = 151, unlocked = false, start_locked = true, demo = true, discovered = false, blueprint_compat = true, perishable_compat = true, eternal_compat = true, rarity = 1, cost = 4, name = "Mr. McCandlish", pos = { x = 0, y = 0 }, set = "Joker", atlas="mod_jokers", effect = "", config = { extra = -10 }, unlock_condition = { type = 'c_losses', extra = 1 } },
+        j_pursuer = { order = 152, unlocked = false, start_locked = true, demo = false, discovered = false, blueprint_compat = true, perishable_compat = true, eternal_compat = true, rarity = 3, cost = 10, name = "The Pursuer", pos = { x = 2, y = 0 }, set = "Joker", atlas="mod_jokers", effect = "", config = { extra = 1, x_mult = 1 }, unlock_condition = { type = 'common_jokers', extra = 4 } },
+        j_locker = { order = 153, unlocked = false, start_locked = true, demo = false, discovered = false, blueprint_compat = true, perishable_compat = true, eternal_compat = true, rarity = 3, cost = 10, name = "Locker", pos = { x = 3, y = 0 }, set = "Joker", atlas="mod_jokers", effect = "", config = {}, unlock_condition = { type = 'win_stake', stake = 4 } },
         --All Consumeables
 
         --Tarots
@@ -665,6 +670,7 @@ function Game:init_item_prototypes()
         b_erratic = { name = "Erratic Deck", stake = 1, demo = true, unlocked = false, start_locked = true, order = 15, pos = { x = 2, y = 3 }, set = "Back", config = { randomize_rank_suit = true }, unlock_condition = { type = 'win_stake', stake = 7 } },
         b_challenge = { name = "Challenge Deck", stake = 1, demo = true, unlocked = true, order = 16, pos = { x = 0, y = 4 }, set = "Back", config = {}, omit = true },
         b_volatile = { name = "Volatile Deck", stake = 1, demo = true, unlocked = false, start_locked = true, order = 17, pos = { x = 0, y = 0 }, set = "Back", config = { randomize_all = true }, unlock_condition = { type = 'win_stake', stake = 8 }, atlas='mod_decks' },
+        b_voucher_deck = { name = "Voucher Deck", stake = 1, demo = true, unlocked = false, start_locked = true, order = 18, pos = { x = 1, y = 0 }, set = "Back", config = {}, unlock_condition = { type = 'win_stake', stake = 9 }, atlas='mod_decks' },
 
         --All enhanced card types here
         m_bonus = { max = 500, order = 2, name = "Bonus", set = "Enhanced", pos = { x = 1, y = 1 }, effect = "Bonus Card", label = "Bonus Card", config = { bonus = 30 } },
@@ -725,6 +731,13 @@ function Game:init_item_prototypes()
 
     if not (self.SETTINGS.enable_decks) then
         self.P_CENTERS.b_volatile = nil
+        self.P_STAKES.stake_teal = nil
+        self.P_CENTERS.b_voucher_deck = nil
+    end
+    if not (self.SETTINGS.enable_jokers) then
+        self.P_CENTERS.j_McCandlish = nil
+        self.P_CENTERS.j_pursuer = nil
+        self.P.CENTERS.j_locker = nil
     end
 
     self.P_CENTER_POOLS = {
@@ -1050,6 +1063,8 @@ function Game:set_render_settings()
         { name = 'collab_DTD_1',  path = "resources/textures/" .. self.SETTINGS.GRAPHICS.texture_scaling .. "x/collabs/collab_DTD_1.png", px = 71, py = 95 },
         { name = 'collab_DTD_2',  path = "resources/textures/" .. self.SETTINGS.GRAPHICS.texture_scaling .. "x/collabs/collab_DTD_2.png", px = 71, py = 95 },
         { name = 'mod_decks',     path = "resources/textures/" .. self.SETTINGS.GRAPHICS.texture_scaling .. "x/mods/decks.png",           px = 71, py = 95 },
+        { name = 'mod_stakes',    path = "resources/textures/" .. self.SETTINGS.GRAPHICS.texture_scaling .. "x/mods/chips.png",          px = 29, py = 29 },
+        { name = 'mod_jokers',    path = "resources/textures/" .. self.SETTINGS.GRAPHICS.texture_scaling .. "x/mods/jokers.png",          px = 71, py = 95 },
 
         { name = 'collab_CYP_1',  path = "resources/textures/" .. self.SETTINGS.GRAPHICS.texture_scaling .. "x/collabs/collab_CYP_1.png", px = 71, py = 95 },
         { name = 'collab_CYP_2',  path = "resources/textures/" .. self.SETTINGS.GRAPHICS.texture_scaling .. "x/collabs/collab_CYP_2.png", px = 71, py = 95 },
@@ -2349,6 +2364,7 @@ function Game:init_game_object()
             cards_flipped = 0,
             round_text = 'Round ',
             idol_card = { suit = 'Spades', rank = 'Ace' },
+            mccandlish_card = { suit = 'Spades', rank = 'Ace', id = 14 },
             mail_card = { rank = 'Ace' },
             ancient_card = { suit = 'Spades' },
             castle_card = { suit = 'Spades' },
@@ -2474,6 +2490,7 @@ function Game:start_run(args)
         if self.GAME.stake >= 6 then self.GAME.modifiers.scaling = 3 end
         if self.GAME.stake >= 7 then self.GAME.modifiers.enable_perishables_in_shop = true end
         if self.GAME.stake >= 8 then self.GAME.modifiers.enable_rentals_in_shop = true end
+        if self.GAME.stake >= 9 then self.GAME.modifiers.scaling = 4 end
 
         self.GAME.selected_back:apply_to_run()
 
