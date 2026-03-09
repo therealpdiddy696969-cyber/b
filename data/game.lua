@@ -737,7 +737,7 @@ function Game:init_item_prototypes()
     if not (self.SETTINGS.enable_jokers) then
         self.P_CENTERS.j_McCandlish = nil
         self.P_CENTERS.j_pursuer = nil
-        self.P.CENTERS.j_locker = nil
+        self.P_CENTERS.j_locker = nil
     end
 
     self.P_CENTER_POOLS = {
