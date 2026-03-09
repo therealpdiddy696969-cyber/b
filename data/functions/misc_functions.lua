@@ -1901,7 +1901,7 @@ function get_starting_params()
         hand_size = hand_size,
         discards = 3,
         hands = 4,
-        reroll_cost = -1000,
+        reroll_cost = 5,
         joker_slots = joker_slots,
         ante_scaling = 1,
     consumable_slots =2,
