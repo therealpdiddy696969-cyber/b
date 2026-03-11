@@ -354,7 +354,7 @@ function Card:set_ability(center, initial, delay_sprites)
         end
     end
 
-    if G.jokers and self.area == G.jokers then 
+    if G.jokers then 
         check_for_unlock({type = 'modify_jokers'})
         check_for_unlock({type = 'common_jokers'})
     end
@@ -458,6 +458,7 @@ function Card:set_edition(edition, immediate, silent)
 
     if G.jokers and self.area == G.jokers then 
         check_for_unlock({type = 'modify_jokers'})
+        check_for_unlock({type = 'common_jokers'})
     end
 
     self:set_cost()
